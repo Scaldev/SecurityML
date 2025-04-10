@@ -5,11 +5,11 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github Scaldev/SecurityML))
 
-(authors "Author Name <author@example.com>")
+(authors "Scaldev scald.dev@gmail.com")
 
-(maintainers "Maintainer Name <maintainer@example.com>")
+(maintainers "Scaldev scald.dev@gmail.com")
 
 (license LICENSE)
 
@@ -17,10 +17,10 @@
 
 (package
  (name SecurityML)
- (synopsis "A short synopsis")
- (description "A longer description")
+ (synopsis "A modest game played in the terminal, inspired by FNaF.")
+ (description "TBA")
  (depends ocaml)
  (tags
-  ("add topics" "to describe" your project)))
+  ("game" "FNaF" your project)))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html
