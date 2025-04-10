@@ -1,4 +1,4 @@
 (executable
  (public_name SecurityML)
  (name main)
- (libraries SecurityML unix))
+ (libraries SecurityML))

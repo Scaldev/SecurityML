@@ -1,2 +1,6 @@
+(include_subdirs no)
 (library
- (name SecurityML))
+ (name SecurityML)
+ (libraries Gameboard)
+ (wrapped false)
+ )
