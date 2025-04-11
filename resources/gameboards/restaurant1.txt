@@ -1,0 +1,39 @@
++--+--+--+--+--+--+--+
+|     .1  2  3 .     |
++  +--+..+..+..+--+  +
+|  .              .  |
++##+  +  +  +  +  +..+
+E  .              |  |
++..+--+..+##+..+..+  +
+|  |  .  |  .  |     |
++  +  +  +  +  +##+  +
+|     |  .S |  .  |  |
++##+--+  +##+  +--+##+
+|  |  .        .     |
++  +  +##+--+..+  +  +
+|4    |     .      5 |
++--+--+--+--+--+--+--+
+
+PS | Parts & Services
+MS | Main Stage
+KI | Kitchen
+MS | Dining Room
+EN | Entrance
+ST | Storage
+PC | Prize Corner
+WH | West Hallway
+VE | Ventilation
+EH | East Hallway
+VE | Ventilation
+OF | Office
+TO | Toilets
+VE | Ventilation
+FR | Foxy's Cove
+SH | South Hallway
+PR | Party Room
+SR | Server Room
+
+Légende :
+    S1 # S2 : seuls les bots peuvent passer par là.
+    S1   S2 : S1 et S2 sont dans la même salle.
+    S1 . S2 : S1 et S2 sont connectés, mais ne sont pas dans la même salle.

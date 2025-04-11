@@ -1,6 +1,6 @@
-(include_subdirs no)
+(include_subdirs qualified)
 (library
  (name SecurityML)
- (libraries Gameboard)
+ (modules :standard)
  (wrapped false)
  )

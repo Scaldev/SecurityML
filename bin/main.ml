@@ -33,14 +33,10 @@ let display_rooms (rs: room list) : unit =
 
 display_rooms (gb.rooms);;
 
-print_string "\n";;
-print_string "\n";;
-print_string "\n";;
+print_newline ();;
 
-print_string (draw_squares (gb.squares) (gb.height, gb.width));;
+let p1 = { pos=(1,1); state=Idle; battery=100; icon="🤖" }
 
-print_string "\n";;
-print_string "\n";;
-print_string "\n";;
+let gb1 = player_on_gameboard p1 (dgameboard_of_squares (gb.squares));;
 
-print_string "hi\n"
+print_string (draw_dgameboard gb1);;
