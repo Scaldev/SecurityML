@@ -1,8 +1,5 @@
 open Gameboard_init
 
-(* Can't use char, since emojis aren't unicode characters. *)
-type pixel = string
-
 (**
  * A drawn square; it looks like that:
  * 
@@ -12,7 +9,7 @@ type pixel = string
  *   |          according to the link edge value.
  * 
  *)
-type dsquare = pixel matrix
+type dsquare = string matrix
 
 type dgameboard = dsquare matrix
 

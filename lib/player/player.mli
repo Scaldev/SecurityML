@@ -1,3 +1,5 @@
+open Gameboard
+
 type player_state = Idle | Hiding | Tasking | Dead
 
 type player = {
@@ -6,3 +8,5 @@ type player = {
   mutable battery: int;
   icon: string
 }
+
+val player_move : gameboard -> player -> direction -> bool

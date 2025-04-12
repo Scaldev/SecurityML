@@ -39,6 +39,13 @@ type gameboard = {
 (*                                                                                                  *)
 (****************************************************************************************************)
 
+let string_of_direction (d: direction) : string =
+  match d with
+  | North -> "north"
+  | South -> "south"
+  | West  -> "west"
+  | East  -> "east"
+
 let string_of_square_id (s: square_id) : string =
   "(" ^ (string_of_int (fst s)) ^ "," ^ (string_of_int (snd s)) ^ ")"
 

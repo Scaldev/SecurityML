@@ -2,8 +2,7 @@ open Gameboard_init
 
 let (<<) = Fun.compose
 
-type pixel = string
-type dsquare = pixel matrix
+type dsquare = string matrix
 type dgameboard = dsquare matrix
 
 (****************************************************************************************************)
@@ -11,16 +10,19 @@ type dgameboard = dsquare matrix
 (*                                 SQUARE MATRIX --> DSQUARE MATRIX                                 *)
 (*                                                                                                  *)
 (****************************************************************************************************)
+let string_of_pixel_line (line: string array) : string =
+  Array.fold_right (^) line "\n"
 
 let string_of_dsquare (ds: dsquare) : string =
-  let string_of_pixel_line line = Array.fold_right (^) line "\n" in
   Array.fold_right ((^) << string_of_pixel_line) ds ""
 
+let string_of_dsquare_line (dss: dsquare array) : string =
+  Array.fold_right ((^) << string_of_dsquare) dss "\n"
+
 let string_of_dgameboard (dgb: dgameboard) : string =
-  let string_of_dsquare_line line = Array.fold_right ((^) << string_of_dsquare) line "\n" in
   Array.fold_right ((^) << string_of_dsquare_line) dgb ""
 
-let draw_link_kind_north (e: edge) : pixel array =
+let draw_link_kind_north (e: edge) : string array =
   match e with
   | Space   -> [| "+"; " "; " "; " "; " "; " "; " " |]
   | Curtain -> [| "+"; "-"; "-"; " "; " "; "-"; "-" |]
@@ -29,7 +31,7 @@ let draw_link_kind_north (e: edge) : pixel array =
   | Wall    -> [| "+"; "-"; "-"; "-"; "-"; "-"; "-" |]
 
 
-let draw_link_kind_west (e: edge) : pixel matrix =
+let draw_link_kind_west (e: edge) : string matrix =
   match e with
   | Space   -> [| [|" "|]; [|" "|]; [|" "|] |]
   | Curtain -> [| [|"|"|]; [|" "|]; [|"|"|] |]
@@ -52,7 +54,7 @@ let dsquare_of_square (s: square) : dsquare =
 let format_line (l: string) : string =
   let black_bg = "\027[48;5;16m" in
   let clear_bg = "\027[0m" in
-  black_bg ^ l ^ clear_bg ^ "\n"
+  black_bg ^ l ^ clear_bg ^ ""
 
 
 let add_wall_east (line: dsquare array) : dsquare array =
@@ -79,7 +81,7 @@ let dgameboard_of_squares (squares: square matrix) : dgameboard =
 (*                                                                                                  *)
 (****************************************************************************************************)
 
-let draw_pixel_line (line: pixel array) : string =
+let draw_pixel_line (line: string array) : string =
   Array.fold_right (^) line ""
 
 let draw_dsquare_line_aux (line: dsquare array) (n: int) : string =
@@ -87,7 +89,7 @@ let draw_dsquare_line_aux (line: dsquare array) (n: int) : string =
     ""
   else (
     let lines = (Array.map (Fun.flip Array.get n) line) in
-    Array.fold_right ((^) << draw_pixel_line) lines ""
+    Array.fold_right ((^) << draw_pixel_line) lines "\n"
   )
 
 

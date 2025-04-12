@@ -17,12 +17,16 @@ type link = square_id * dir * edge
 
 type direction = North | East | South | West
 
+val string_of_direction : direction -> string
+
 type room = {
   name: string;
   code: string;
   color: string;
   squares_id: square_id list;
 }
+
+val string_of_room : room -> string
 
 type square = {
   id: int * int;
@@ -39,7 +43,5 @@ type gameboard = {
   squares: square matrix;
   rooms: room list;
 }
-
-val string_of_room : room -> string
 
 val init_gameboard : int * int -> link list -> room list -> gameboard
