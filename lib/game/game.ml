@@ -31,6 +31,10 @@ let game_start () =
 
   let gb = init_gameboard dim links rooms in
   let p = { pos=(1,1); state=Idle; battery=100; icon="🤖" } in
-  let gs = { gameboard=gb; player=p } in
+  let gs = {
+    gameboard = gb;
+    player = p;
+  } in
 
   game_init gs
+  

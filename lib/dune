@@ -3,4 +3,5 @@
  (name SecurityML)
  (modules :standard)
  (wrapped false)
+ (libraries threads)
  )

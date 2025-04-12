@@ -8,6 +8,14 @@ type command = Move of direction
 
 type 'a result = Success of 'a | Error of string
 
+type cli_state = {
+  game_state: game_state;
+  mutex: Mutex.t;
+  running: bool;
+  mutable result: string result;
+  mutable input: string;
+}
+
 (**
  * @param res a string describing either a success or an error.
  * @return res after being formatted.
@@ -79,9 +87,9 @@ let process_move (gs: game_state) (d: direction) : string result =
  * @param c a command.
  * @return true iff the game state has been mutated.
  *)
-let process_command (gs: game_state) (c: command) : string result =
+let process_command (cs: cli_state) (c: command) : string result =
   match c with
-  | Move d -> process_move gs d
+  | Move d -> process_move cs.game_state d
 
 (**
  * Update the game state according to the command, if possible.
@@ -89,52 +97,131 @@ let process_command (gs: game_state) (c: command) : string result =
  * @param line a command line string.
  * @return the output result after parsing and processing that line.
  *)
-let process_command_line (gs: game_state) (line: string) : string result =
-  match parse_command line with
-    | Success s -> process_command gs s
+let process_command_line (cs: cli_state) : string result =
+  match parse_command cs.input with
+    | Success s -> process_command cs s
     | Error _ -> Error "unknown command"
 
 (****************************************************************************************************)
 (*                                                                                                  *)
-(*                                             GAME LOOP                                            *)
+(*                                      INPUT - OUTPUT INTERFACE                                    *)
 (*                                                                                                  *)
 (****************************************************************************************************)
 
 (**
- * Clean the console and print a new game screen displaying gs.
- * @param gs a game state.
+ * Set raw mode to read the standard input without the need to wait
+ * for an Enter key.
  *)
-let game_draw (gs: game_state) : unit =
-    let gb = player_on_gameboard gs.player (dgameboard_of_squares gs.gameboard.squares) in
-    print_string "\027[2J\027[H";
-    flush stdout;
-    print_string (draw_dgameboard gb);;
+let set_raw_mode () =
+  let term = Unix.tcgetattr Unix.stdin in
+  let raw_term = { term with c_icanon = false; c_echo = false; } in
+  Unix.tcsetattr Unix.stdin TCSANOW raw_term
 
 (**
- * Draw the game and the UI according to gs and cmd_res.
- * @param gs a game state.
- * @param cmd_res the result of a command line input.
+ * Reset to default mode when a failure happens.
  *)
-let cli_draw (gs: game_state) (cmd_res: string result) : unit =
-  game_draw gs;
-  print_string ("\n" ^ string_of_result cmd_res ^ "\n");
-  print_string "> "
+let reset_mode () =
+  let term = Unix.tcgetattr Unix.stdin in
+  let canonical_term = { term with c_icanon = true; c_echo = true; } in
+  Unix.tcsetattr Unix.stdin TCSANOW canonical_term
+
 
 (**
- * Read and standard input for a command line,
- * parse and process it and redraw the game screen.
- * @param gs a game state.
+ * Clean the terminal screen.
  *)
-let rec game_loop (gs: game_state) : unit =
-  let line = read_line () in
-  let cmd_res = process_command_line gs line in
-  cli_draw gs cmd_res;
-  game_loop gs
+let clear_screen () =
+  let top_left = "\027[H" in
+  let clean = "\027[2J" in
+  print_string (top_left ^ clean);
+  flush stdout
 
 (**
- * Draw gs and start and main game loop.
+ * Print the game state drawing in standard output.
+ * @param gs a game state.
+ *)
+let draw_game_state (gs: game_state) : unit =
+  print_string (draw_game_state gs);
+  flush stdout
+
+(**
+ * Print the game state drawing in standard output.
+ * @param gs a game state.
+ *)
+let draw_command_line (cs: cli_state) =
+  let l = string_of_int ((cs.game_state.gameboard.height * 4 + 1) + 2) in
+  print_string ("\027[" ^ l ^ ";1H\027[2K");
+  print_string (string_of_result cs.result);
+  Printf.printf "\n>>> %s" cs.input;
+  flush stdout
+
+(**
+ * Redraw the output (game state) and input (command line) every frame.
+ * @param cs the state of the CLI.
+ *)
+let display_loop (cs: cli_state) =
+  while cs.running do
+    clear_screen ();
+    Mutex.lock cs.mutex;
+    draw_game_state cs.game_state;
+    draw_command_line cs;
+    Mutex.unlock cs.mutex;
+    Thread.delay 0.033 (* ~ 30 fps *)
+  done
+
+(**
+ * update cs according to c.
+ * @param cs the state of the CLI.
+ * @param c the last input char.
+ *)
+let process_char (cs: cli_state) (c: char) : unit =
+  match c with
+  | '\n' ->
+      cs.result <- process_command_line cs;
+      cs.input <- ""
+  | '\127' ->
+      if String.length cs.input > 0 then
+        cs.input <- String.sub cs.input 0 (String.length cs.input - 1)
+  | _ ->
+      cs.input <- cs.input ^ (String.make 1 c)
+
+(**
+ * Listen for input char to process while the game is running.
+ * @param cs the state of the CLI.
+ *)
+let cli_loop (cs: cli_state) : unit =
+  while cs.running do
+    let c = input_char stdin in
+    Mutex.lock cs.mutex;
+    process_char cs c;
+    Mutex.unlock cs.mutex;
+  done
+
+(**
+ * @param gs a game state.
+ * @return a CLI state.
+ *)
+let cs_default (gs: game_state) : cli_state = {
+  game_state = gs;
+  mutex = Mutex.create ();
+  result = (Success "new game");
+  input = "";
+  running = true;
+}
+
+(**
+ * Initialize the game loop.
  * @param gs a game state.
  *)
 let game_init (gs: game_state) : unit =
-  cli_draw gs (Success "new game");
-  game_loop gs
+
+  set_raw_mode ();
+  clear_screen ();
+
+  let cs = cs_default gs in
+  let _ = Thread.create display_loop cs in
+
+  try
+    cli_loop cs
+  with e ->
+    reset_mode ();
+    raise e

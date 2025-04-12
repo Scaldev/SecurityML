@@ -6,4 +6,6 @@ type game_state = {
   player: player;
 }
 
-val player_on_gameboard : player -> dgameboard -> dgameboard
+val player_on_dgameboard : dgameboard -> player -> dgameboard
+
+val draw_game_state : game_state -> string
